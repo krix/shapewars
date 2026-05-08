@@ -12,25 +12,55 @@
         #play { color: #ffc603; font-size: 22px; font-weight: bold; background: #333; padding: 10px 40px; border: none; border-radius: 4px; cursor: pointer; letter-spacing: 2px; }
         #play:hover { color: #000; background: #fff; }
         #status { margin-top: 16px; }
-        #fs-btn { position: fixed; top: 8px; right: 12px; color: #aaa; font-family: Monospace; font-size: 13px; cursor: pointer; z-index: 10; display: none; text-decoration: none; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 3px; border: 1px solid #555; }
-        #fs-btn:hover { color: #ffc603; border-color: #ffc603; }
+        #fs-btn { position: fixed; top: 10px; right: 14px; color: #ffc603; font-family: Monospace; font-size: 13px; cursor: pointer; z-index: 10; display: none; text-decoration: none; background: rgba(0,0,0,0.55); padding: 5px 12px; border-radius: 4px; border: 1px solid #ffc603; letter-spacing: 0.5px; }
+        #fs-btn:hover { color: #000; background: #ffc603; }
+        #fs-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.5); font-family: Monospace; font-size: 12px; z-index: 10; display: none; pointer-events: none; transition: opacity 0.5s; }
     </style>
 </head>
 <body>
     <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
-    <a id="fs-btn" href="#">fullscreen</a>
+    <a id="fs-btn" href="#">[ fullscreen ]</a>
+    <div id="fs-hint">Press ESC to exit fullscreen</div>
     <div id="overlay">
         <button id="play">PLAY</button>
         <div id="status"></div>
     </div>
     <script>
+        var gameLoaded = false;
+        var fsBtn = document.getElementById('fs-btn');
+        var fsHint = document.getElementById('fs-hint');
+        var overlay = document.getElementById('overlay');
+
+        function onFullscreenChange() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                fsBtn.style.display = 'none';
+                fsHint.style.display = 'block';
+                fsHint.style.opacity = '1';
+                setTimeout(function() {
+                    fsHint.style.opacity = '0';
+                    setTimeout(function() { fsHint.style.display = 'none'; }, 500);
+                }, 3000);
+            } else {
+                if (gameLoaded) {
+                    fsBtn.style.display = 'inline';
+                }
+                fsHint.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
         var Module = {
             canvas: document.getElementById('canvas'),
             setStatus: function(text) {
                 var statusEl = document.getElementById('status');
                 if (!text) {
-                    document.getElementById('overlay').style.display = 'none';
-                    document.getElementById('fs-btn').style.display = 'inline';
+                    gameLoaded = true;
+                    overlay.style.display = 'none';
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                        fsBtn.style.display = 'inline';
+                    }
                 }
                 statusEl.textContent = text;
             }
@@ -41,7 +71,7 @@
             s.src = 'shapewars.js';
             document.head.appendChild(s);
         });
-        document.getElementById('fs-btn').addEventListener('click', function(e) {
+        fsBtn.addEventListener('click', function(e) {
             e.preventDefault();
             var el = document.documentElement;
             if (el.requestFullscreen) {
