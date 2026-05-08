@@ -7,20 +7,18 @@
     <style>
         html, body { background: #000; margin: 0; height: 100%; overflow: hidden; }
         body { display: flex; align-items: center; justify-content: center; }
-        canvas { border: 0 none; background: #0a0a14; width: 100vw; height: 100vh; display: block; cursor: none; }
+        canvas { border: 0 none; background: #0a0a14; width: 100vw; height: 100vh; display: block; }
         #overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; width: 240px; height: 120px; text-align: center; color: #ccc; font-family: Monospace; font-size: 14px; cursor: default; }
         #play { color: #ffc603; font-size: 22px; font-weight: bold; background: #333; padding: 10px 40px; border: none; border-radius: 4px; cursor: pointer; letter-spacing: 2px; }
         #play:hover { color: #000; background: #fff; }
         #status { margin-top: 16px; }
         #fs-btn { position: fixed; top: 10px; right: 14px; color: #ffc603; font-family: Monospace; font-size: 13px; cursor: pointer; z-index: 10; display: none; text-decoration: none; background: rgba(0,0,0,0.55); padding: 5px 12px; border-radius: 4px; border: 1px solid #ffc603; letter-spacing: 0.5px; }
         #fs-btn:hover { color: #000; background: #ffc603; }
-        #fs-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.5); font-family: Monospace; font-size: 12px; z-index: 10; display: none; pointer-events: none; transition: opacity 0.5s; }
     </style>
 </head>
 <body>
     <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     <a id="fs-btn" href="#">[ fullscreen ]</a>
-    <div id="fs-hint">Press ESC to exit fullscreen</div>
     <div id="overlay">
         <button id="play">PLAY</button>
         <div id="status"></div>
@@ -28,23 +26,22 @@
     <script>
         var gameLoaded = false;
         var fsBtn = document.getElementById('fs-btn');
-        var fsHint = document.getElementById('fs-hint');
         var overlay = document.getElementById('overlay');
+        var canvas = document.getElementById('canvas');
+
+        function setCursorHidden(hidden) {
+            canvas.style.cursor = hidden ? 'none' : '';
+        }
 
         function onFullscreenChange() {
             if (document.fullscreenElement || document.webkitFullscreenElement) {
                 fsBtn.style.display = 'none';
-                fsHint.style.display = 'block';
-                fsHint.style.opacity = '1';
-                setTimeout(function() {
-                    fsHint.style.opacity = '0';
-                    setTimeout(function() { fsHint.style.display = 'none'; }, 500);
-                }, 3000);
+                if (gameLoaded) setCursorHidden(true);
             } else {
                 if (gameLoaded) {
                     fsBtn.style.display = 'inline';
+                    setCursorHidden(true);
                 }
-                fsHint.style.display = 'none';
             }
         }
 
@@ -52,12 +49,13 @@
         document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
         var Module = {
-            canvas: document.getElementById('canvas'),
+            canvas: canvas,
             setStatus: function(text) {
                 var statusEl = document.getElementById('status');
                 if (!text) {
                     gameLoaded = true;
                     overlay.style.display = 'none';
+                    setCursorHidden(true);
                     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
                         fsBtn.style.display = 'inline';
                     }
