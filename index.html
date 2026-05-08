@@ -7,8 +7,7 @@
     <style>
         html, body { background: #000; margin: 0; height: 100%; overflow: hidden; }
         body { display: flex; align-items: center; justify-content: center; }
-        #canvas-wrapper { width: min(100vh * 16 / 9, 100vw); height: min(100vw * 9 / 16, 100vh); overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        canvas { border: 0 none; background: #0a0a14; display: block; width: 100% !important; height: 100% !important; }
+        canvas { border: 0 none; background: #0a0a14; display: block; width: 100vw; height: 100vh; }
         #overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; width: 240px; height: 120px; text-align: center; color: #ccc; font-family: Monospace; font-size: 14px; cursor: default; }
         #play { color: #ffc603; font-size: 22px; font-weight: bold; background: #333; padding: 10px 40px; border: none; border-radius: 4px; cursor: pointer; letter-spacing: 2px; }
         #play:hover { color: #000; background: #fff; }
@@ -18,7 +17,7 @@
     </style>
 </head>
 <body>
-    <div id="canvas-wrapper"><canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas></div>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     <a id="fs-btn" href="#">[ fullscreen ]</a>
     <div id="overlay">
         <button id="play">PLAY</button>
