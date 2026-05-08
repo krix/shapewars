@@ -11,10 +11,13 @@
         #play { color: #ffc603; font-size: 22px; font-weight: bold; background: #333; padding: 10px 40px; border: none; border-radius: 4px; cursor: pointer; letter-spacing: 2px; }
         #play:hover { color: #000; background: #fff; }
         #status { margin-top: 16px; }
+        #fs-btn { position: fixed; top: 6px; right: 10px; color: #666; font-family: Monospace; font-size: 12px; cursor: pointer; z-index: 10; display: none; text-decoration: none; }
+        #fs-btn:hover { color: #ccc; }
     </style>
 </head>
 <body>
     <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    <a id="fs-btn" href="#">fullscreen</a>
     <div id="overlay">
         <button id="play">PLAY</button>
         <div id="status"></div>
@@ -26,6 +29,7 @@
                 var statusEl = document.getElementById('status');
                 if (!text) {
                     document.getElementById('overlay').style.display = 'none';
+                    document.getElementById('fs-btn').style.display = 'inline';
                 }
                 statusEl.textContent = text;
             }
@@ -35,6 +39,15 @@
             var s = document.createElement('script');
             s.src = 'shapewars.js';
             document.head.appendChild(s);
+        });
+        document.getElementById('fs-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            var el = document.documentElement;
+            if (el.requestFullscreen) {
+                el.requestFullscreen();
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
+            }
         });
     </script>
 </body>
