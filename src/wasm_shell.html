@@ -7,7 +7,9 @@
     <style>
         html, body { background: #000; margin: 0; height: 100%; overflow: hidden; }
         body { display: flex; align-items: center; justify-content: center; }
-        canvas { border: 0 none; background: #0a0a14; display: block; width: 100vw; height: 100vh; }
+        #container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px; }
+        #title { color: #ffc603; font-family: Monospace; font-weight: bold; font-size: clamp(32px, 6vw, 72px); letter-spacing: 12px; display: none; text-shadow: 0 0 20px rgba(255, 198, 3, 0.3); }
+        canvas { border: 0 none; background: #0a0a14; display: block; }
         #overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; width: 240px; height: 120px; text-align: center; color: #ccc; font-family: Monospace; font-size: 14px; cursor: default; }
         #play { color: #ffc603; font-size: 22px; font-weight: bold; background: #333; padding: 10px 40px; border: none; border-radius: 4px; cursor: pointer; letter-spacing: 2px; }
         #play:hover { color: #000; background: #fff; }
@@ -17,7 +19,10 @@
     </style>
 </head>
 <body>
-    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    <div id="container">
+        <div id="title">SHAPEWARS</div>
+        <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    </div>
     <a id="fs-btn" href="#">[ fullscreen ]</a>
     <div id="overlay">
         <button id="play">PLAY</button>
@@ -28,12 +33,46 @@
         var fsBtn = document.getElementById('fs-btn');
         var overlay = document.getElementById('overlay');
         var canvas = document.getElementById('canvas');
+        var title = document.getElementById('title');
+        var container = document.getElementById('container');
+        var GAME_RATIO = 16 / 9;
+        var PAD = 30;
+
+        function sizeCanvas() {
+            var isFS = document.fullscreenElement || document.webkitFullscreenElement;
+            if (isFS) {
+                title.style.display = 'none';
+                canvas.style.width = '100vw';
+                canvas.style.height = '100vh';
+                return;
+            }
+            title.style.display = 'block';
+            var titleH = title.offsetHeight || 0;
+            var availW = window.innerWidth - PAD * 2;
+            var availH = window.innerHeight - titleH - PAD * 3;
+            if (availW < 320 || availH < 180) {
+                canvas.style.width = '320px';
+                canvas.style.height = '180px';
+                return;
+            }
+            var w, h;
+            if (availW / availH > GAME_RATIO) {
+                h = availH;
+                w = h * GAME_RATIO;
+            } else {
+                w = availW;
+                h = w / GAME_RATIO;
+            }
+            canvas.style.width = Math.floor(w) + 'px';
+            canvas.style.height = Math.floor(h) + 'px';
+        }
 
         function setCursorHidden(hidden) {
             canvas.style.cursor = hidden ? 'none' : '';
         }
 
         function onFullscreenChange() {
+            sizeCanvas();
             if (document.fullscreenElement || document.webkitFullscreenElement) {
                 fsBtn.style.display = 'none';
                 if (gameLoaded) setCursorHidden(true);
@@ -47,6 +86,7 @@
 
         document.addEventListener('fullscreenchange', onFullscreenChange);
         document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+        window.addEventListener('resize', sizeCanvas);
 
         var Module = {
             canvas: canvas,
@@ -56,6 +96,7 @@
                     gameLoaded = true;
                     overlay.style.display = 'none';
                     setCursorHidden(true);
+                    sizeCanvas();
                     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
                         fsBtn.style.display = 'inline';
                     }
@@ -64,6 +105,7 @@
             }
         };
         document.getElementById('play').addEventListener('click', function() {
+            sizeCanvas();
             this.style.display = 'none';
             var s = document.createElement('script');
             s.src = 'shapewars.js';

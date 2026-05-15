@@ -84,11 +84,11 @@ void spacetime_draw(void) {
 
             if (col < SPACETIME_COLS - 1 && row > 0 && row < SPACETIME_ROWS - 1) {
                 int ri = row * SPACETIME_COLS + (col + 1);
-                render_draw_line(points[i].pos.x, points[i].pos.y, points[ri].pos.x, points[ri].pos.y, 20, 20, 45);
+                render_draw_line(points[i].pos.x, points[i].pos.y, points[ri].pos.x, points[ri].pos.y, 28, 28, 55);
             }
             if (row < SPACETIME_ROWS - 1 && col > 0 && col < SPACETIME_COLS - 1) {
                 int bi = (row + 1) * SPACETIME_COLS + col;
-                render_draw_line(points[i].pos.x, points[i].pos.y, points[bi].pos.x, points[bi].pos.y, 20, 20, 45);
+                render_draw_line(points[i].pos.x, points[i].pos.y, points[bi].pos.x, points[bi].pos.y, 28, 28, 55);
             }
         }
     }
@@ -108,7 +108,7 @@ void spacetime_draw(void) {
         if (is_big) {
             render_draw_rect(p->pos.x - 1.0f, p->pos.y - 1.0f, 2.0f, 2.0f, intensity / 3, intensity / 3, intensity);
         } else if (is_edge_line) {
-            render_draw_rect(p->pos.x - 1.0f, p->pos.y - 1.0f, 2.0f, 2.0f, intensity / 4, intensity / 4, intensity / 1.5f);
+            render_draw_rect(p->pos.x - 1.0f, p->pos.y - 1.0f, 2.0f, 2.0f, intensity / 3, intensity / 3, intensity / 1.2f);
         } else {
             render_draw_rect(p->pos.x - 1.0f, p->pos.y - 1.0f, 2.0f, 2.0f, intensity / 5, intensity / 5, intensity / 2);
         }

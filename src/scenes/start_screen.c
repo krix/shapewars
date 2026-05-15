@@ -1,5 +1,6 @@
 #include "../main.h"
 #include "../high_impact/src/platform.h"
+#include "../sounds.h"
 #include <string.h>
 
 #define ACTION_UP     10
@@ -24,26 +25,51 @@ static float menu_item_w, menu_item_h;
 
 typedef struct { float x1, y1, x2, y2; } seg_t;
 
+// All letters are hollow outlines built from straight lines only
+
+// All letters: clean hollow outlines using only straight lines
+
 static const seg_t seg_S[] = {
-    {0, 0, 1, 0}, {0, 0, 0, 0.5f}, {0, 0.5f, 1, 0.5f}, {1, 0.5f, 1, 1}, {0, 1, 1, 1},
+    {0, 0, 1, 0},           // top
+    {0, 0, 0, 0.5f},        // left upper
+    {0, 0.5f, 1, 0.5f},     // middle
+    {1, 0.5f, 1, 1},        // right lower
+    {0, 1, 1, 1},           // bottom
 };
 static const seg_t seg_H[] = {
-    {0, 0, 0, 1}, {1, 0, 1, 1}, {0, 0.5f, 1, 0.5f},
+    {0, 0, 0, 1},           // left
+    {1, 0, 1, 1},           // right
+    {0, 0.5f, 1, 0.5f},     // crossbar
 };
 static const seg_t seg_A[] = {
-    {0, 1, 0.5f, 0}, {0.5f, 0, 1, 1}, {0.2f, 0.55f, 0.8f, 0.55f},
+    {0.5f, 0, 1, 1},        // right diagonal
+    {0, 1, 0.5f, 0},        // left diagonal
+    {0.2f, 0.55f, 0.8f, 0.55f}, // crossbar
 };
 static const seg_t seg_P[] = {
-    {0, 0, 0, 1}, {0, 0, 1, 0}, {1, 0, 1, 0.5f}, {0, 0.5f, 1, 0.5f},
+    {0, 0, 0, 1},           // left
+    {0, 0, 1, 0},           // top
+    {1, 0, 1, 0.5f},        // right of loop
+    {0, 0.5f, 1, 0.5f},     // middle
 };
 static const seg_t seg_E[] = {
-    {0, 0, 0, 1}, {0, 0, 1, 0}, {0, 0.5f, 0.8f, 0.5f}, {0, 1, 1, 1},
+    {0, 0, 0, 1},           // left
+    {0, 0, 1, 0},           // top
+    {0, 0.5f, 0.8f, 0.5f},  // middle
+    {0, 1, 1, 1},           // bottom
 };
 static const seg_t seg_W[] = {
-    {0, 0, 0.33f, 1}, {0.33f, 1, 0.5f, 0.5f}, {0.5f, 0.5f, 0.67f, 1}, {0.67f, 1, 1, 0},
+    {0, 0, 0.33f, 1},       // left outer
+    {0.33f, 1, 0.5f, 0.5f}, // left inner
+    {0.5f, 0.5f, 0.67f, 1}, // right inner
+    {0.67f, 1, 1, 0},       // right outer
 };
 static const seg_t seg_R[] = {
-    {0, 0, 0, 1}, {0, 0, 1, 0}, {1, 0, 1, 0.5f}, {0, 0.5f, 1, 0.5f}, {0.5f, 0.5f, 1, 1},
+    {0, 0, 0, 1},           // left
+    {0, 0, 1, 0},           // top
+    {1, 0, 1, 0.5f},        // right of loop
+    {0, 0.5f, 1, 0.5f},     // middle
+    {0.5f, 0.5f, 1, 1},     // diagonal leg
 };
 
 typedef struct {
@@ -87,16 +113,22 @@ static void draw_letter(const letter_def_t *l, float x, float y, float w, float 
 }
 
 static void draw_title(void) {
-    const char *text = "SHAPEWARS";
-    int len = strlen(text);
-    float spacing = 80.0f;
-    float total_w = len * spacing;
+    int len = 9;
+    float spacing = 130.0f;
+    float total_w = (len - 1) * spacing + 110.0f;
     float start_x = (1280.0f - total_w) / 2.0f;
-    float y = 110.0f;
-    float letter_w = 68.0f;
-    float letter_h = 100.0f;
+    float y = 90.0f;
+    float letter_w = 110.0f;
+    float letter_h = 180.0f;
+    float cx = start_x + total_w / 2.0f;
+
+    float t = (float)engine.time * 0.65f;
+    float shear = sinf(t) * 0.04f;
     for (int i = 0; i < len && i < sizeof(letters)/sizeof(letters[0]); i++) {
-        draw_letter(&letters[i], start_x + i * spacing, y, letter_w, letter_h, 3.2f, 255, 255, 255);
+        float letter_x = start_x + i * spacing;
+        float letter_cx = letter_x + letter_w / 2.0f;
+        float dy = (letter_cx - cx) * shear;
+        draw_letter(&letters[i], letter_x, y + dy, letter_w, letter_h, 6.0f, 255, 255, 255);
     }
 }
 
@@ -117,6 +149,8 @@ static void select_item(int index) {
 }
 
 static void init(void) {
+    entity_clear_all();
+    render_reset_textures();
     selected = 0;
     hovered = -1;
     menu_item_w = 280.0f;
@@ -147,8 +181,17 @@ static void init(void) {
     input_bind(INPUT_GAMEPAD_L_STICK_UP, ACTION_UP);
     input_bind(INPUT_GAMEPAD_L_STICK_DOWN, ACTION_DOWN);
     input_bind(INPUT_GAMEPAD_A, ACTION_SELECT);
+    input_bind(INPUT_GAMEPAD_X, ACTION_SELECT);
     input_bind(INPUT_GAMEPAD_START, ACTION_SELECT);
+    input_bind(INPUT_GAMEPAD2_DPAD_UP, ACTION_UP);
+    input_bind(INPUT_GAMEPAD2_DPAD_DOWN, ACTION_DOWN);
+    input_bind(INPUT_GAMEPAD2_L_STICK_UP, ACTION_UP);
+    input_bind(INPUT_GAMEPAD2_L_STICK_DOWN, ACTION_DOWN);
+    input_bind(INPUT_GAMEPAD2_A, ACTION_SELECT);
+    input_bind(INPUT_GAMEPAD2_X, ACTION_SELECT);
+    input_bind(INPUT_GAMEPAD2_START, ACTION_SELECT);
     input_bind(INPUT_MOUSE_LEFT, ACTION_SELECT);
+    sounds_init();
     render_set_clear_color(rgba(35, 48, 72, 255));
 }
 
@@ -176,6 +219,7 @@ static void update(void) {
         }
     }
     if (input_pressed(ACTION_SELECT)) {
+        sound_play(sound_menu_select);
         if (hovered >= 0) select_item(hovered);
         else select_item(selected);
     }

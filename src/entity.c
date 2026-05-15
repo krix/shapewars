@@ -194,6 +194,7 @@ void entity_draw_lights(void) {
         int base_alpha = 0;
         switch (e->type) {
             case ENTITY_PLAYER:          base_alpha = 16; color = rgba( 80, 160, 255, 16); radius = 120; break;
+            case ENTITY_PLAYER2:         base_alpha = 16; color = rgba( 80, 255, 80, 16); radius = 120; break;
             case ENTITY_ENEMY_TRIANGLE:  base_alpha = 14; color = rgba(100, 100, 255, 14); radius = 160; break;
             case ENTITY_ENEMY_SQUARE:    base_alpha = 20; color = rgba(255, 100, 100, 20); radius = 160; break;
             case ENTITY_ENEMY_HEXAGON:   base_alpha = 20; color = rgba(255, 255, 100, 20); radius = 160; break;
@@ -205,6 +206,8 @@ void entity_draw_lights(void) {
                 radius = 60;
                 goto density_alpha;
             case ENTITY_BLACKHOLE:       color = rgba(120,  40, 180, 20); radius = 160; break;
+            case ENTITY_POWERUP_SHIELD:  color = rgba( 60,  80, 255, 40); radius = 60; break;
+            case ENTITY_POWERUP_MAGNET:  color = rgba(255, 160,  40, 40); radius = 60; break;
             case ENTITY_GAMBO:
                 color = rgba(255, 255, 80, 8);
                 radius = 60;

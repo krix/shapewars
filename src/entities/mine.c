@@ -15,26 +15,28 @@ static void update(entity_t *self) {
     mine_t *mine = (mine_t *)self;
 
     if (!mine->arming) {
-        entity_t *player = entity_first(ENTITY_PLAYER);
-        if (player) {
-            float dx = self->pos.x - player->pos.x;
-            float dy = self->pos.y - player->pos.y;
+        entity_type_t ptypes[] = {ENTITY_PLAYER, ENTITY_PLAYER2};
+        entity_list_t players = entities_by_types(ptypes, 2);
+        for (int i = 0; i < players.len; i++) {
+            float dx = self->pos.x - players.entities[i]->pos.x;
+            float dy = self->pos.y - players.entities[i]->pos.y;
             if (dx * dx + dy * dy < MINE_TRIGGER_RADIUS * MINE_TRIGGER_RADIUS) {
                 mine->arming = true;
                 mine->arm_timer = MINE_ARM_TIME;
+                break;
             }
         }
     } else {
         mine->arm_timer -= engine.tick;
         if (mine->arm_timer <= 0) {
-            entity_explosion_create(self->pos, 5, MINE_EXPLOSION_DAMAGE, true);
+            entity_explosion_create(self->pos, 5, MINE_EXPLOSION_DAMAGE, true, false);
             entity_remove(self);
         }
     }
 }
 
 static void mine_kill(entity_t *self) {
-    entity_explosion_create(self->pos, 5, MINE_EXPLOSION_DAMAGE, true);
+    entity_explosion_create(self->pos, 5, MINE_EXPLOSION_DAMAGE, true, false);
 }
 
 static void draw(entity_t *self) {

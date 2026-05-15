@@ -1,22 +1,13 @@
 #include "../main.h"
+#include "../particle.h"
 #include "../spacetime.h"
+#include "../sounds.h"
 
-#define MAX_EXPLOSION_PARTICLES 256
 #define EXPLOSION_PUSH_FORCE 200.0f
 #define EXPLOSION_WAVE_SPEED 400.0f
 
 typedef struct {
-    vec2_t pos;
-    vec2_t vel;
-    float lifetime;
-    float max_lifetime;
-    uint8_t r, g, b;
-} particle_t;
-
-typedef struct {
     entity_t entity;
-    particle_t particles[MAX_EXPLOSION_PARTICLES];
-    int count;
     vec2_t origin;
     float max_radius;
     float current_radius;
@@ -26,7 +17,6 @@ typedef struct {
 
 static void update(entity_t *self) {
     explosion_t *ex = (explosion_t *)self;
-    bool any_alive = false;
 
     float prev_radius = ex->current_radius;
     ex->current_radius += EXPLOSION_WAVE_SPEED * engine.tick;
@@ -58,15 +48,7 @@ static void update(entity_t *self) {
         }
     }
 
-    for (int i = 0; i < ex->count; i++) {
-        if (ex->particles[i].lifetime <= 0) continue;
-        ex->particles[i].pos = vec2_add(ex->particles[i].pos, vec2_mulf(ex->particles[i].vel, engine.tick));
-        ex->particles[i].vel = vec2_mulf(ex->particles[i].vel, 0.98f);
-        ex->particles[i].lifetime -= engine.tick;
-        if (ex->particles[i].lifetime > 0) any_alive = true;
-    }
-
-    if (!any_alive && ex->current_radius >= ex->max_radius)
+    if (ex->current_radius >= ex->max_radius)
         entity_remove(self);
 }
 
@@ -98,23 +80,9 @@ static void draw(entity_t *self) {
             }
         }
     }
-
-    for (int i = 0; i < ex->count; i++) {
-        if (ex->particles[i].lifetime <= 0) continue;
-        float t = ex->particles[i].lifetime / ex->particles[i].max_lifetime;
-        float radius = t * 1.0f + 0.3f;
-        render_draw_circle(
-            ex->particles[i].pos.x,
-            ex->particles[i].pos.y,
-            radius,
-            ex->particles[i].r,
-            ex->particles[i].g,
-            ex->particles[i].b
-        );
-    }
 }
 
-entity_t *entity_explosion_create(vec2_t pos, float size, float damage, bool from_mine) {
+entity_t *entity_explosion_create(vec2_t pos, float size, float damage, bool from_mine, bool big) {
     explosion_t *ex = entity_alloc(sizeof(explosion_t));
     ex->entity.type = ENTITY_EXPLOSION;
     ex->entity.pos = pos;
@@ -128,6 +96,7 @@ entity_t *entity_explosion_create(vec2_t pos, float size, float damage, bool fro
     ex->max_damage = damage;
     ex->from_mine = from_mine;
 
+    sound_play_ex(big ? sound_explosion_big : sound_explosion, 1.0f, 0.0f, from_mine ? 0.7f : 1.0f);
     g.shake_timer = 0.15f;
     g.shake_intensity = from_mine ? 7.0f : 1.5f;
 
@@ -148,32 +117,41 @@ entity_t *entity_explosion_create(vec2_t pos, float size, float damage, bool fro
 
     spacetime_explosion_push(pos, ex->max_radius, EXPLOSION_PUSH_FORCE * 1.5f);
 
-    uint8_t colors[][3] = {
-        {255, 255, 100},
-        {255, 200, 50},
-        {255, 150, 0},
-        {255, 100, 0}
-    };
-
     int num = (int)size * 8;
-    if (num > MAX_EXPLOSION_PARTICLES) num = MAX_EXPLOSION_PARTICLES;
-    ex->count = num;
+    if (num > MAX_PARTICLES) num = MAX_PARTICLES;
 
-    for (int i = 0; i < num; i++) {
-        float angle = rand_float(0, M_PI * 2);
-        float speed = rand_float(80, 200) * size;
-        ex->particles[i].pos = vec2(
-            pos.x + rand_float(-4, 4),
-            pos.y + rand_float(-4, 4)
-        );
-        ex->particles[i].vel = vec2(cosf(angle) * speed, sinf(angle) * speed);
-        ex->particles[i].lifetime = rand_float(0.4f, 0.9f);
-        ex->particles[i].max_lifetime = ex->particles[i].lifetime;
-        int ci = rand_int(0, 3);
-        ex->particles[i].r = colors[ci][0];
-        ex->particles[i].g = colors[ci][1];
-        ex->particles[i].b = colors[ci][2];
-    }
+    particle_explosion(
+        pos, num,
+        80.0f * size, 200.0f * size,
+        0.4f, 0.9f,
+        255, 255, 100,
+        255, 100, 0
+    );
+
+    return (entity_t *)ex;
+}
+
+entity_t *entity_bullet_hit_create(vec2_t pos) {
+    explosion_t *ex = entity_alloc(sizeof(explosion_t));
+    ex->entity.type = ENTITY_EXPLOSION;
+    ex->entity.pos = pos;
+    ex->entity.update = update;
+    ex->entity.draw = draw;
+
+    ex->origin = pos;
+    ex->max_radius = 0;
+    ex->entity.size = vec2(0, 0);
+    ex->current_radius = 0;
+    ex->max_damage = 0;
+    ex->from_mine = false;
+
+    particle_explosion(
+        pos, 4,
+        30.0f, 60.0f,
+        0.2f, 0.4f,
+        200, 220, 120,
+        255, 255, 200
+    );
 
     return (entity_t *)ex;
 }

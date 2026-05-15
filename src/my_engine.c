@@ -28,6 +28,7 @@ void engine_init(void) {
     engine.time_real = platform_now();
     render_init(platform_screen_size());
     sound_init(platform_samplerate());
+    sound_init_synth();
     platform_set_audio_mix_cb(sound_mix_stereo);
     input_init();
     main_init();

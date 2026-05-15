@@ -1,4 +1,5 @@
 #include "../main.h"
+#include "../sounds.h"
 
 #define GAMBO_ATTRACT_RANGE 200.0f
 #define GAMBO_ATTRACT_MAX_SPEED 300.0f
@@ -21,24 +22,35 @@ static void update(entity_t *self) {
         self->vel = vec2(0, 0);
     }
 
-    entity_t *player = entity_first(ENTITY_PLAYER);
+    entity_type_t ptypes[] = {ENTITY_PLAYER, ENTITY_PLAYER2};
+    entity_list_t players = entities_by_types(ptypes, 2);
+    entity_t *player = players.len > 0 ? players.entities[0] : NULL;
+    if (players.len > 1) {
+        float d0 = vec2_dist(players.entities[0]->pos, self->pos);
+        float d1 = vec2_dist(players.entities[1]->pos, self->pos);
+        player = (d0 < d1) ? players.entities[0] : players.entities[1];
+    }
     if (player) {
         vec2_t dir = vec2_sub(player->pos, self->pos);
         float distance = vec2_len(dir);
         
-        if (distance < GAMBO_ATTRACT_RANGE && distance > 0) {
+        float attract_range = g.magnet_timer > 0 ? 2000.0f : GAMBO_ATTRACT_RANGE;
+        float max_speed = g.magnet_timer > 0 ? 600.0f : GAMBO_ATTRACT_MAX_SPEED;
+        
+        if (distance < attract_range && distance > 0) {
             dir = vec2_normalize(dir);
             
-            float t = 1.0f - (distance / GAMBO_ATTRACT_RANGE);
-            float speed = t * t * GAMBO_ATTRACT_MAX_SPEED;
+            float t = 1.0f - (distance / attract_range);
+            float speed = t * t * max_speed;
             vec2_t velocity = vec2_mulf(dir, speed);
             
             self->pos = vec2_add(self->pos, vec2_mulf(velocity, engine.tick));
             
             if (distance < 20.0f) {
+                sound_play(sound_collect);
                 g.score += 10;
                 g.gambo_count++;
-                if (g.gambo_count >= 100) {
+                if (g.gambo_count >= 200) {
                     g.gambo_count = 0;
                     g.spreadshot_timer = 5.0f;
                 }

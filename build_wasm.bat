@@ -3,7 +3,7 @@ echo Building ShapeWars for WASM...
 
 set EMCC=C:\Users\krix\AppData\Local\Temp\opencode\emsdk\upstream\emscripten\emcc.bat
 
-set GAME_SRC=src/main.c src/entity.c src/my_engine.c src/spacetime.c src/embedded_assets.c src/embedded_font_qoi.c src/embedded_font_json.c src/scenes/game.c src/entities/player.c src/entities/enemy.c src/entities/bullet.c src/entities/gambo.c src/entities/explosion.c src/entities/mine.c src/entities/blackhole.c
+set GAME_SRC=src/main.c src/entity.c src/my_engine.c src/spacetime.c src/sounds.c src/embedded_assets.c src/embedded_font_qoi.c src/embedded_font_json.c src/scenes/game.c src/scenes/start_screen.c src/entities/player.c src/entities/enemy.c src/entities/bullet.c src/entities/gambo.c src/entities/explosion.c src/entities/mine.c src/entities/blackhole.c src/entities/powerup.c
 
 set HI_SRC=high_impact/src/alloc.c high_impact/src/font.c high_impact/src/image.c high_impact/src/input.c high_impact/src/render.c high_impact/src/platform.c high_impact/src/sound.c high_impact/src/utils.c
 

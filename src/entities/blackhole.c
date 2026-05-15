@@ -1,4 +1,5 @@
 #include "../main.h"
+#include "../particle.h"
 #include "../spacetime.h"
 
 #define BH_RADIUS 15.0f
@@ -9,14 +10,8 @@
 #define BH_SPAWN_INTERVAL 0.2f
 
 typedef struct {
-    vec2_t pos;
-    vec2_t vel;
-    float lifetime;
-} bh_particle_t;
-
-typedef struct {
     entity_t entity;
-    bh_particle_t particles[BH_PARTICLES_MAX];
+    particle_t particles[BH_PARTICLES_MAX];
     int particle_count;
     float spawn_timer;
 } blackhole_t;
@@ -37,15 +32,18 @@ static void update(entity_t *self) {
         );
         vec2_t dir = vec2_normalize(vec2_sub(self->pos, pos));
 
-        bh_particle_t *p = &bh->particles[bh->particle_count++];
+        particle_t *p = &bh->particles[bh->particle_count++];
         p->pos = pos;
         p->vel = vec2_mulf(dir, rand_float(40, 80));
         p->lifetime = 2.0f;
+        p->max_lifetime = 2.0f;
+        p->r = p->g = p->b = 255;
+        p->active = true;
         bh->spawn_timer = BH_SPAWN_INTERVAL + rand_float(-0.05f, 0.05f);
     }
 
     for (int i = 0; i < bh->particle_count; ) {
-        bh_particle_t *p = &bh->particles[i];
+        particle_t *p = &bh->particles[i];
         vec2_t dir = vec2_sub(self->pos, p->pos);
         float dist = vec2_len(dir);
         if (dist > 0) {
@@ -65,18 +63,18 @@ static void update(entity_t *self) {
     }
 
     // Gravity pull on all nearby entities
-    entity_type_t grav_types[] = {ENTITY_PLAYER};
-    entity_list_t targets = entities_by_types(grav_types, 1);
+    entity_type_t grav_types[] = {ENTITY_PLAYER, ENTITY_PLAYER2, ENTITY_ENEMY_SQUARE, ENTITY_ENEMY_CIRCLE, ENTITY_ENEMY_TRIANGLE, ENTITY_ENEMY_HEXAGON};
+    entity_list_t targets = entities_by_types(grav_types, 6);
     for (int i = 0; i < targets.len; i++) {
         entity_t *e = targets.entities[i];
         vec2_t d = vec2_sub(self->pos, e->pos);
         float dist = vec2_len(d);
         if (dist < BH_GRAVITY_RADIUS && dist > 4.0f) {
-            if (e->type == ENTITY_PLAYER && e->invuln_timer > 0) continue;
+            if ((e->type == ENTITY_PLAYER || e->type == ENTITY_PLAYER2) && e->invuln_timer > 0) continue;
             d = vec2_normalize(d);
             float t = dist / BH_GRAVITY_RADIUS;
             float pull = BH_GRAVITY_FORCE * (1.0f - t * t);
-            if (e->type == ENTITY_PLAYER) {
+            if (e->type == ENTITY_PLAYER || e->type == ENTITY_PLAYER2) {
                 e->pos = vec2_add(e->pos, vec2_mulf(d, pull * 0.55f * engine.tick));
             } else {
                 e->vel = vec2_add(e->vel, vec2_mulf(d, pull * engine.tick));
@@ -118,7 +116,7 @@ static void draw(entity_t *self) {
     render_draw_circle(self->pos.x, self->pos.y, BH_RADIUS * 0.35f, 0, 0, 0);
 
     for (int i = 0; i < ((blackhole_t *)self)->particle_count; i++) {
-        bh_particle_t *p = &((blackhole_t *)self)->particles[i];
+        particle_t *p = &((blackhole_t *)self)->particles[i];
         vec2_t dir = vec2_sub(self->pos, p->pos);
         float dist = vec2_len(dir);
         float t = dist / (BH_RADIUS * 4.0f);
@@ -129,7 +127,7 @@ static void draw(entity_t *self) {
 }
 
 static void kill(entity_t *self) {
-    entity_explosion_create(self->pos, 15, 10, true);
+    entity_explosion_create(self->pos, 15, 10, true, true);
 }
 
 entity_t *entity_blackhole_create(vec2_t pos) {

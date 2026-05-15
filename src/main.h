@@ -31,7 +31,10 @@ typedef enum {
     ENTITY_GAMBO,
     ENTITY_EXPLOSION,
     ENTITY_MINE,
-    ENTITY_BLACKHOLE
+    ENTITY_BLACKHOLE,
+    ENTITY_PLAYER2,
+    ENTITY_POWERUP_SHIELD,
+    ENTITY_POWERUP_MAGNET
 } entity_type_t;
 
 typedef struct entity_t entity_t;
@@ -69,6 +72,16 @@ typedef struct {
 #define INPUT_ACTION_AIM_UP     8
 #define INPUT_ACTION_AIM_DOWN   9
 
+#define INPUT_ACTION_P2_LEFT      11
+#define INPUT_ACTION_P2_RIGHT     12
+#define INPUT_ACTION_P2_UP        13
+#define INPUT_ACTION_P2_DOWN      14
+#define INPUT_ACTION_P2_SHOOT     15
+#define INPUT_ACTION_P2_AIM_LEFT  16
+#define INPUT_ACTION_P2_AIM_RIGHT 17
+#define INPUT_ACTION_P2_AIM_UP    18
+#define INPUT_ACTION_P2_AIM_DOWN  19
+
 typedef struct {
     font_t *font;
     int score;
@@ -89,7 +102,10 @@ typedef struct {
     int last_bh_spawn_kills;
     float spreadshot_timer;
     vec2_t aim_vec;
+    vec2_t p2_aim;
     int game_mode;
+    float shield_timer;
+    float magnet_timer;
 } global_t;
 
 extern global_t g;
@@ -111,12 +127,15 @@ void entity_clear_all(void);
 void entity_cleanup(void);
 
 entity_t *entity_player_create(vec2_t pos);
+entity_t *entity_player2_create(vec2_t pos);
 entity_t *entity_enemy_create(entity_type_t type, vec2_t pos);
 entity_t *entity_bullet_create(vec2_t pos, vec2_t direction, float speed);
 entity_t *entity_gambo_create(vec2_t pos);
-entity_t *entity_explosion_create(vec2_t pos, float size, float damage, bool from_mine);
+entity_t *entity_explosion_create(vec2_t pos, float size, float damage, bool from_mine, bool big);
+entity_t *entity_bullet_hit_create(vec2_t pos);
 entity_t *entity_mine_create(vec2_t pos);
 entity_t *entity_blackhole_create(vec2_t pos);
+entity_t *entity_powerup_create(vec2_t pos, int powerup_type);
 
 void render_push_matrix(void);
 void render_pop_matrix(void);
