@@ -1,0 +1,9 @@
+﻿[submodule "high_drop"]
+	path = high_drop
+	url = https://github.com/phoboslab/high_drop.git
+[submodule "high_impact"]
+	path = high_impact
+	url = https://github.com/phoboslab/high_impact.git
+[submodule "sokol"]
+	path = sokol
+	url = https://github.com/floooh/sokol.git

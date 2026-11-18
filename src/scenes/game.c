@@ -3,6 +3,7 @@
 #include "../spacetime.h"
 #include "../high_impact/src/platform.h"
 #include "../sounds.h"
+#include "../touch_input.h"
 
 #define NUM_STARS 120
 #define INPUT_ACTION_PAUSE 10
@@ -26,6 +27,7 @@ static star_t stars[NUM_STARS];
 static void init(void) {
     entity_clear_all();
     render_reset_textures();
+    mobile_set_ui_mode(1);
 
     g.score = 0;
     g.lives = 3;
@@ -398,7 +400,7 @@ static void draw(void) {
 
     if (g.shake_timer > 0) render_pop();
 
-    if (vec2_len(g.aim_vec) == 0) {
+    if (vec2_len(g.aim_vec) == 0 && !touch_controls_active()) {
         float cx = g.mouse_pos.x, cy = g.mouse_pos.y;
         render_draw_rect(cx - 8, cy - 1, 5, 2, 220, 220, 220);
         render_draw_rect(cx + 3, cy - 1, 5, 2, 220, 220, 220);
@@ -418,10 +420,11 @@ static void draw(void) {
             render_translate(vec2((size.x - tw) / 2, size.y / 2 - 48));
             font_draw(g.font, vec2(0, 0), "GAME OVER", FONT_ALIGN_LEFT);
             render_pop();
-            tw = font_line_width(g.font, "Press ENTER to restart");
+            const char *restart_text = touch_controls_active() ? "Tap to restart" : "Press ENTER to restart";
+            tw = font_line_width(g.font, (char*)restart_text);
             render_push();
             render_translate(vec2((size.x - tw) / 2, size.y / 2 + 16));
-            font_draw(g.font, vec2(0, 0), "Press ENTER to restart", FONT_ALIGN_LEFT);
+            font_draw(g.font, vec2(0, 0), (char*)restart_text, FONT_ALIGN_LEFT);
             render_pop();
         } else {
             render_draw_rect(200, 280, 400, 40, 160, 0, 0);

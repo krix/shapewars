@@ -1,6 +1,7 @@
 #include "../main.h"
 #include "../high_impact/src/platform.h"
 #include "../sounds.h"
+#include "../touch_input.h"
 #include <string.h>
 
 #define ACTION_UP     10
@@ -151,6 +152,7 @@ static void select_item(int index) {
 static void init(void) {
     entity_clear_all();
     render_reset_textures();
+    mobile_set_ui_mode(0);
     selected = 0;
     hovered = -1;
     menu_item_w = 280.0f;

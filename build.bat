@@ -5,7 +5,7 @@ REM Set the compiler path
 set CC=C:\mingw64\bin\gcc.exe
 
 REM Game source files
-set GAME_SRC=src/main.c src/entity.c src/my_engine.c src/spacetime.c src/sounds.c src/embedded_assets.c src/embedded_font_qoi.c src/embedded_font_json.c src/particle.c src/scenes/game.c src/scenes/start_screen.c src/entities/player.c src/entities/enemy.c src/entities/bullet.c src/entities/gambo.c src/entities/explosion.c src/entities/mine.c src/entities/blackhole.c src/entities/powerup.c
+set GAME_SRC=src/main.c src/entity.c src/my_engine.c src/spacetime.c src/sounds.c src/embedded_assets.c src/embedded_font_qoi.c src/embedded_font_json.c src/particle.c src/touch_input.c src/scenes/game.c src/scenes/start_screen.c src/entities/player.c src/entities/enemy.c src/entities/bullet.c src/entities/gambo.c src/entities/explosion.c src/entities/mine.c src/entities/blackhole.c src/entities/powerup.c
 
 REM High Impact source files (only the standalone modules we need)
 set HI_SRC=high_impact/src/alloc.c high_impact/src/font.c high_impact/src/image.c high_impact/src/input.c high_impact/src/render.c high_impact/src/platform.c high_impact/src/sound.c high_impact/src/utils.c

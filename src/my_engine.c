@@ -1,4 +1,5 @@
 #include "main.h"
+#include "touch_input.h"
 #include "../high_impact/src/platform.h"
 #include "../high_impact/src/image.h"
 
@@ -98,6 +99,7 @@ void engine_update(void) {
     }
 
     input_clear();
+    touch_input_update();
     temp_alloc_check();
 
     engine.perf.draw_calls = render_draw_calls();
