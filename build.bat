@@ -11,7 +11,7 @@ REM High Impact source files (only the standalone modules we need)
 set HI_SRC=high_impact/src/alloc.c high_impact/src/font.c high_impact/src/image.c high_impact/src/input.c high_impact/src/render.c high_impact/src/platform.c high_impact/src/sound.c high_impact/src/utils.c
 
 REM Include directories
-set INCLUDES=-Ihigh_impact/src -Isokol -Isrc
+set INCLUDES=-Ihigh_impact/src -Isrc
 
 REM Compiler flags
 set CFLAGS=-std=gnu99 -Wall -Wstrict-prototypes -Wno-unused-variable -Wno-unused-function -DPLATFORM_SOKOL -DRENDER_GL -O2

@@ -1,3 +1,6 @@
 *.exe
 build/
 build_wasm/
+/index.html
+/shapewars.js
+/shapewars.wasm

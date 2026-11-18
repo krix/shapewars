@@ -9,7 +9,7 @@ set GAME_SRC=src/main.c src/entity.c src/my_engine.c src/spacetime.c src/sounds.
 
 set HI_SRC=high_impact/src/alloc.c high_impact/src/font.c high_impact/src/image.c high_impact/src/input.c high_impact/src/render.c high_impact/src/platform.c high_impact/src/sound.c high_impact/src/utils.c
 
-set INCLUDES=-Ihigh_impact/src -Isokol -Isrc
+set INCLUDES=-Ihigh_impact/src -Isrc
 
 set CFLAGS=-std=gnu99 -Wall -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-function -DPLATFORM_SOKOL -DRENDER_GL -DRENDER_RESIZE_MODE=0 -O2
 
